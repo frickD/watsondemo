@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>WatsonFlowers</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="lib/anime/anime.min.js"></script>
+</head>
+<body>
+
+  <div id="loader" style="background: #343a40;position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
+      <img class="animated zoomIn" src="img/white_logo.png" style=" position: absolute; margin: auto;top: 0;left: 0;right: 0;bottom: 0;max-width:40%; animation-iteration-count: infinite;">
+  </div>
+
+
+  <div id="app" style="display:none">
+  <nav class="navbar navbar-light fixed-top" style="background: #343a40;border-bottom: 5px solid #fe3473;">
+
+        <a class="navbar-brand" style="margin-right: 0;" href="loomo.html">
+        <img style="max-width:50px" src="img/white_logo.png">
+      </a>
+
+      <button type="button" onclick="closeConnection()" class="btn btn-loomo">Verbindung beenden</button>
+        <div id="login-button" class="navbar-login-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg></div>
+    </nav>
+
+    <nav id="standard-footer" class="navbar-default fixed-bottom navbar-footer text-center" style="-webkit-box-shadow: 0px -8px 38px -4px rgba(0,0,0,0.69);box-shadow: 0px -8px 38px -4px rgba(0,0,0,0.69);background: #343a40;border-top: 5px solid #fe3473;background: #343a40;border-top: 5px solid #fe3473;">
+      <div class="container">
+        <a class="navbar-brand mx-auto" href="#" style="width:100%">
+          <div class="col" style="margin-top:10px; margin-bottom:30px">
+            <div class="row">
+              <div class="col-4">
+                <div id="cobee-icon">
+                  <img  src="img/loomo_icon.png" style="padding: 5px;width:100px;border-top: 5px solid #fe3473;"></img>
+                </div>
+              </div>
+              <div class="col-8">
+              </div>
+            </div>
+            <div class="input-group">
+              <input id="ask_input" type="text" class="form-control" placeholder="Stelle mir eine Frage..." aria-label="" aria-describedby="basic-addon2">
+              <div class="input-group-append">
+                <button id="send_text" class="btn btn-loomo" type="button">SENDEN</button>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </nav>
+
+
+
+<div id="app-content" style="margin-top:80px">
+
+  <div id="home-content" >
+    <div class="color-background text-center" style="margin-top:80px; background: #cacaca;">
+      <div style="width: 100%;overflow-x: auto;">
+        <div id="path-tag-container" style="display:inline-flex; margin:10px">
+
+      </div>
+      </div>
+    </div>
+
+    <div style="height:1000px; position: sticky!important; background:#cacaca; overflow-y: auto;">
+      <div id="chat-card-container" style="margin-bottom:20px">
+      </div>
+    </div>
+  </div>
+  <div class="jumbotron text-center" style="margin-bottom:0;background:#343a40!important"></div>
+</div>
+</div>
+
+</body>
+</html>
+
+<script>
+window.onload = function() {
+      initApp();
+};
+
+function initApp() {
+
+const input = document.querySelector("input");
+input.addEventListener("keyup", (event) => {
+  if (event.key === "Enter") {
+    console.log('Enter key pressed');
+    postText();
+  }
+});
+//TODO:checkWatsonStatus
+  if (true){
+    if(true){
+        runLoader(false);
+        setTimeout(() => {
+                anime({
+                    targets: '#cobee-icon',
+                    translateY: -50
+                });
+                addChatText("Hi, ich bin Loomo. Soll ich dir den Weg zu einem Raum zeigen? Du kannst mich auch gerne andere Dinge fragen.", true);
+          }, 1000);
+    }else{
+        alert("Error");
+    }
+  }else{
+    alert("Error");
+  }
+}
+
+function addChatText (text, isLoomoText){
+  let user = "Ich";
+  let chatStyleClass = "user";
+  if (isLoomoText){
+    user = "Blumenhändler";
+    chatStyleClass = "loomo";
+  }
+  $("#chat-card-container").prepend("<div class='" + chatStyleClass + "-chat-card'><div class='chat-card-text'><h5>" + user +":</h5><p>" + text + "</p></div></div>");
+}
+
+function closeConnection(){
+  runLoader(true);
+  setTimeout(() => {window.location.reload();}, 5000);
+}
+
+  $("#send_text").click(function() {
+    postText();
+  });
+
+  function postText(){
+    var question = $("#ask_input").val();
+    $("#ask_input").val("");
+    if(question != ""){
+        sendText(question);
+        addChatText(question, false);
+    }
+  }
+
+  function sendText(text) {
+    var settings = {
+      "url": "/messageAssistant",
+      "method": "POST",
+      "timeout": 0,
+      "data": text,
+    };
+
+    $.ajax(settings).done(function (response) {
+      console.log(response);
+      parseChatbotResponse(response);
+    });
+  }
+
+  function parseChatbotResponse(response) {
+    response = JSON.parse(response);
+    let intent = (typeof response.output.intents[0] !== 'undefined') ? response.output.intents[0].intent : "noIntent";
+    let entity = (typeof response.output.entities[0] !== 'undefined') ? response.output.entities[0].entity : "noEntity";
+    let text = (typeof response.output.generic[0] !== 'undefined') ? response.output.generic[0].text : "Sorry, ich habe dich leider nicht verstanden, probiere es erneut.";
+
+    if(intent === "Path" && entity === "Path"){
+      let pathId = (typeof response.context.skills["main skill"].user_defined.path !== 'undefined') ? response.context.skills["main skill"].user_defined.path : "";
+      if (pathId != ""){
+        showPath(pathId);
+      }else{
+        text = "Ich kann in meinem System, leider den Weg dazu nicht finden.";
+      }
+    }else if(intent === "PathBack" ){
+      setConnectionState("pathback");
+    }else {
+      //Context check if needed  
+      //let emotion = (typeof response.context.skills["main skill"].user_defined.emotion !== 'undefined') ? response.context.skills["main skill"].user_defined.emotion : "";
+      //if(emotion != "") setConnectionState(emotion);
+    }
+    addChatText(text, true);
+  }
+
+    function runLoader(shouldRun){
+     if(shouldRun){
+       $("#app").hide();
+       $("#loader").fadeIn();
+     }else{
+       $("#app").fadeIn();
+       $("#loader").hide();
+     }
+    }
+
+
+</script>

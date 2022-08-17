@@ -1,0 +1,98 @@
+body{
+  background: #343a40;
+}
+
+.btn-loomo {
+  background-color: #fe3473;
+  border-color: #fe3473;
+  color:#fff!important;
+}
+
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 2px solid #fe3473;
+    border-radius: .25rem;
+}
+
+.loomo-chat-card{
+  background:#fe3473;
+  color:white;
+  margin-left:20px;
+  margin-right:70px;
+  margin-top:20px;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+}
+
+.loomo-chat-card{
+  background: #fe34738f;
+}
+
+.user-chat-card{
+  background:#343a40;
+  color:white;
+  margin-left:70px;
+  margin-right:20px;
+  margin-top:20px;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+}
+
+.user-chat-card + .user-chat-card{
+  background: #343a40bf;
+}
+
+.chat-card-text{
+  margin-left:5px;
+  margin-right:5px
+}
+
+.app {
+  background: #343a40;
+}
+
+.jumbotron {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background-color: #525c67;
+    border-radius: .3rem;
+    color: #fff;
+}
+
+.jumbotron-loomo {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background: #fff;
+    color: #000;
+    border-radius: .3rem;
+}
+
+.path-row{
+   background: #fff;
+   padding: 20px;
+   border-radius: 1px;
+   border-radius: .3rem;
+}
+
+.footer-loomo{
+  border-top: 5px solid rgb(73, 156, 163);
+  color: white;
+  margin-top: 50px;
+  margin-bottom: 0;
+}
+
+.red-text{
+  color:red;
+}
+
+.green-text{
+  color:green;
+}
