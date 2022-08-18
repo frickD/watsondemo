@@ -21,14 +21,14 @@
 
 
   <div id="app" style="display:none">
-  <nav class="navbar navbar-light fixed-top" style="background: #343a40;border-bottom: 5px solid #fe3473;">
+  <nav id="main-nav" class="navbar navbar-light fixed-top" style="background: #343a40;border-bottom: 5px solid #fe3473;">
 
         <a class="navbar-brand" style="margin-right: 0;" href="loomo.html">
-        <img style="max-width:50px" src="img/white_logo.png">
+        <img id="header-icon" style="max-width:50px" src="img/white_logo.png">
       </a>
 
       <button type="button" onclick="closeConnection()" class="btn btn-loomo">Verbindung beenden</button>
-        <div id="login-button" class="navbar-login-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg></div>
+        <div id="login-button" onclick="alert('Session Id' + sessionId)" class="navbar-login-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg></div>
     </nav>
 
     <nav id="standard-footer" class="navbar-default fixed-bottom navbar-footer text-center" style="-webkit-box-shadow: 0px -8px 38px -4px rgba(0,0,0,0.69);box-shadow: 0px -8px 38px -4px rgba(0,0,0,0.69);background: #343a40;border-top: 5px solid #fe3473;background: #343a40;border-top: 5px solid #fe3473;">
@@ -81,36 +81,21 @@
 </html>
 
 <script>
+var sessionId = "";
 window.onload = function() {
       initApp();
 };
 
 function initApp() {
 
-const input = document.querySelector("input");
-input.addEventListener("keyup", (event) => {
-  if (event.key === "Enter") {
-    console.log('Enter key pressed');
-    postText();
-  }
-});
-//TODO:checkWatsonStatus
-  if (true){
-    if(true){
-        runLoader(false);
-        setTimeout(() => {
-                anime({
-                    targets: '#cobee-icon',
-                    translateY: -50
-                });
-                addChatText("Hi, ich bin Loomo. Soll ich dir den Weg zu einem Raum zeigen? Du kannst mich auch gerne andere Dinge fragen.", true);
-          }, 1000);
-    }else{
-        alert("Error");
+    const input = document.querySelector("input");
+    input.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+        console.log('Enter key pressed');
+        postText();
     }
-  }else{
-    alert("Error");
-  }
+    });
+    createNewSession();
 }
 
 function addChatText (text, isLoomoText){
@@ -133,6 +118,7 @@ function closeConnection(){
   });
 
   function postText(){
+    runChatbotLoader(true);
     var question = $("#ask_input").val();
     $("#ask_input").val("");
     if(question != ""){
@@ -141,17 +127,46 @@ function closeConnection(){
     }
   }
 
-  function sendText(text) {
+  function sendText(textMessage, sessionId) {
     var settings = {
       "url": "/messageAssistant",
       "method": "POST",
       "timeout": 0,
-      "data": text,
+      "headers": {
+        "content-type": "application/json"
+        },
+      "data": JSON.stringify({"textMessage" : textMessage, "sessionId": sessionId})
     };
 
     $.ajax(settings).done(function (response) {
       console.log(response);
       parseChatbotResponse(response);
+      runChatbotLoader(false);
+    });
+  }
+
+  function createNewSession(text) {
+    var settings = {
+      "url": "/createNewSession",
+      "method": "GET",
+      "timeout": 0
+    };
+
+    $.ajax(settings).done(function (response) {
+        sessionId = response;
+        if (sessionId !== ""){
+            setTimeout(() => {
+                    anime({
+                        targets: '#cobee-icon',
+                        translateY: -50
+                    });
+                    sendText("", sessionId);
+                    runLoader(false);
+            }, 1000);
+            
+        }else{
+            alert("Bitte überprüfe die Eingaben deiner Umgebungsvariablen.");
+        }
     });
   }
 
@@ -160,21 +175,6 @@ function closeConnection(){
     let intent = (typeof response.output.intents[0] !== 'undefined') ? response.output.intents[0].intent : "noIntent";
     let entity = (typeof response.output.entities[0] !== 'undefined') ? response.output.entities[0].entity : "noEntity";
     let text = (typeof response.output.generic[0] !== 'undefined') ? response.output.generic[0].text : "Sorry, ich habe dich leider nicht verstanden, probiere es erneut.";
-
-    if(intent === "Path" && entity === "Path"){
-      let pathId = (typeof response.context.skills["main skill"].user_defined.path !== 'undefined') ? response.context.skills["main skill"].user_defined.path : "";
-      if (pathId != ""){
-        showPath(pathId);
-      }else{
-        text = "Ich kann in meinem System, leider den Weg dazu nicht finden.";
-      }
-    }else if(intent === "PathBack" ){
-      setConnectionState("pathback");
-    }else {
-      //Context check if needed  
-      //let emotion = (typeof response.context.skills["main skill"].user_defined.emotion !== 'undefined') ? response.context.skills["main skill"].user_defined.emotion : "";
-      //if(emotion != "") setConnectionState(emotion);
-    }
     addChatText(text, true);
   }
 
@@ -187,6 +187,25 @@ function closeConnection(){
        $("#loader").hide();
      }
     }
+
+function runChatbotLoader(shouldRun){
+    if (shouldRun){
+        anime.remove("#main-nav");
+        anime({
+            targets: '#main-nav',
+            backgroundColor: '#fe3473',
+            loop: true,
+            easing: 'easeInOutSine'
+        });
+    }else{
+        anime.remove("#main-nav");
+        anime({
+            targets: '#main-nav',
+            backgroundColor: '#343a40',
+            loop: false
+        });
+    }
+}
 
 
 </script>

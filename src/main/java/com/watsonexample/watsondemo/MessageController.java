@@ -16,29 +16,31 @@ import com.ibm.watson.assistant.v2.model.SessionResponse;
 
 @RestController
 public class MessageController {
+    
 
-    @PostMapping("/messageAssistant")
-    public String postBody(@RequestBody String userText) {
+    private final String apiKey = System.getenv("ASSISTANT_APIKEY");
+    private final String serviceUrl = System.getenv("ASSISTANT_URL");
+    private final String assistantId = System.getenv("ASSISTANT_ID");
+    private Assistant assistant;
 
-        String apiKey = System.getenv("ASSISTANT_APIKEY");
-        String serviceUrl = System.getenv("ASSISTANT_URL");
-        String assistantId = System.getenv("ASSISTANT_ID");
-
+    public MessageController() {
         Authenticator authenticator = new IamAuthenticator.Builder()
         .apikey(apiKey)
         .build();
         Assistant assistant = new Assistant("2021-06-14", authenticator);
         assistant.setServiceUrl(serviceUrl);
+        this.assistant = assistant;
+    }
 
-        CreateSessionOptions sessionOptions = new CreateSessionOptions.Builder(assistantId).build();
-        SessionResponse sessionResponse = assistant.createSession(sessionOptions).execute().getResult(); 
+    @PostMapping("/messageAssistant")
+    public String postBody(@RequestBody AssistantSession session) {
         
         MessageInput input = new MessageInput.Builder()
         .messageType("text")
-        .text(userText)
+        .text(session.getTextMessage())
         .build();
 
-        MessageOptions options = new MessageOptions.Builder(assistantId, sessionResponse.getSessionId())
+        MessageOptions options = new MessageOptions.Builder(assistantId, session.getSessionId())
         .input(input)
         .build();
 
@@ -47,11 +49,19 @@ public class MessageController {
         return response.toString();
     }
 
-    @GetMapping("/getSystemVariables")
-    public String home() {
-        String apiKey = System.getenv("ASSISTANT_APIKEY");
-        String serviceUrl = System.getenv("ASSISTANT_URL");
-        String assistantId = System.getenv("ASSISTANT_ID");
-        return "Apikey: " + apiKey + "/n Service: " + serviceUrl + "/n assistantId: " + assistantId;
+    @GetMapping("/createNewSession")
+    public String createNewSession() {
+        String assistantId = "af430f3b-0975-4772-aeca-29d26616c5dd";
+        CreateSessionOptions sessionOptions;
+        SessionResponse sessionResponse;
+        try {
+            sessionOptions = new CreateSessionOptions.Builder(assistantId).build();
+            sessionResponse = assistant.createSession(sessionOptions).execute().getResult(); 
+            return sessionResponse.getSessionId();
+        } catch (Exception e) {
+            return "";
+        }
+        
     }
+
 }
