@@ -19,8 +19,8 @@ public class MessageController {
     
 
     private final String apiKey = System.getenv("ASSISTANT_APIKEY");
-    private final String serviceUrl = System.getenv("ASSISTANT_URL");
-    private final String assistantId = System.getenv("ASSISTANT_ID");
+    private final String serviceUrl = "https://api.eu-de.assistant.watson.cloud.ibm.com/instances/75decd21-931b-46c5-af8c-f35edea83cb5";
+    private final String assistantId = "af430f3b-0975-4772-aeca-29d26616c5dd";
     private Assistant assistant;
 
     public MessageController() {
